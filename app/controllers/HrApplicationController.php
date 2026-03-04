@@ -50,4 +50,25 @@ class HrApplicationController {
         }
         redirect('/hr/jobs/applicants?id=' . $app['job_id']);
     }
+
+    /** Daftar pelamar yang sudah diterima (untuk semua lowongan HR) */
+    public function accepted(): void {
+        $this->requireHr();
+        $hrId = currentUserId();
+        $perPage = (int) ($_GET['per_page'] ?? 20);
+        $perPage = in_array($perPage, [10, 20, 50, 100], true) ? $perPage : 20;
+        $page = max(1, (int) ($_GET['page'] ?? 1));
+        $totalAccepted = $this->appModel->countAcceptedForHr($hrId);
+        $totalPages = $totalAccepted > 0 ? (int) ceil($totalAccepted / $perPage) : 1;
+        $page = min($page, $totalPages);
+        $applicants = $this->appModel->getAcceptedApplicantsForHr($hrId, $page, $perPage);
+        render_view('hr/applications/accepted', [
+            'applicants' => $applicants,
+            'pageTitle' => 'Pelamar Diterima',
+            'page' => $page,
+            'perPage' => $perPage,
+            'totalPages' => $totalPages,
+            'totalAccepted' => $totalAccepted,
+        ]);
+    }
 }

@@ -60,6 +60,71 @@ class Application {
         return $row ?: null;
     }
 
+    /** Count per status untuk satu job */
+    public function getCountsByJobId(int $jobId): array {
+        $stmt = $this->db->prepare('
+            SELECT status, COUNT(*) AS cnt FROM applications WHERE job_id = ? GROUP BY status
+        ');
+        $stmt->execute([$jobId]);
+        $rows = [];
+        while ($r = $stmt->fetch(PDO::FETCH_ASSOC)) {
+            $rows[$r['status']] = (int) $r['cnt'];
+        }
+        return [
+            'total' => (int) ($rows['pending'] ?? 0) + (int) ($rows['accepted'] ?? 0) + (int) ($rows['rejected'] ?? 0),
+            'accepted' => (int) ($rows['accepted'] ?? 0),
+            'rejected' => (int) ($rows['rejected'] ?? 0),
+            'pending' => (int) ($rows['pending'] ?? 0),
+        ];
+    }
+
+    /** Statistik applicant untuk semua job milik HR (total, accepted, rejected, pending) */
+    public function getCountsByHrJobs(int $hrUserId): array {
+        $stmt = $this->db->prepare('
+            SELECT status, COUNT(*) AS cnt
+            FROM applications a
+            JOIN jobs j ON j.id = a.job_id AND j.created_by = ?
+            GROUP BY status
+        ');
+        $stmt->execute([$hrUserId]);
+        $rows = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+        return [
+            'total' => (int) ($rows['pending'] ?? 0) + (int) ($rows['accepted'] ?? 0) + (int) ($rows['rejected'] ?? 0),
+            'accepted' => (int) ($rows['accepted'] ?? 0),
+            'rejected' => (int) ($rows['rejected'] ?? 0),
+            'pending' => (int) ($rows['pending'] ?? 0),
+        ];
+    }
+
+    /** Daftar applicant yang diterima untuk job milik HR (dengan pagination) */
+    public function getAcceptedApplicantsForHr(int $hrUserId, int $page = 1, int $perPage = 20): array {
+        $offset = max(0, ($page - 1) * $perPage);
+        $perPage = (int) $perPage;
+        $offset = (int) $offset;
+        $sql = "SELECT a.*, u.name, u.email, u.phone,
+                j.title AS job_title, j.location AS job_location
+            FROM applications a
+            JOIN users u ON u.id = a.user_id
+            JOIN jobs j ON j.id = a.job_id AND j.created_by = ?
+            WHERE a.status = ?
+            ORDER BY a.created_at DESC
+            LIMIT $perPage OFFSET $offset";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute([$hrUserId, 'accepted']);
+        return $stmt->fetchAll();
+    }
+
+    public function countAcceptedForHr(int $hrUserId): int {
+        $stmt = $this->db->prepare('
+            SELECT COUNT(*)
+            FROM applications a
+            JOIN jobs j ON j.id = a.job_id AND j.created_by = ?
+            WHERE a.status = ?
+        ');
+        $stmt->execute([$hrUserId, 'accepted']);
+        return (int) $stmt->fetchColumn();
+    }
+
     /** Daftar apply user (untuk profile candidate) */
     public function getByUserId(int $userId): array {
         $stmt = $this->db->prepare('

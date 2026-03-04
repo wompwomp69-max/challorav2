@@ -17,12 +17,33 @@ class HrJobController {
 
     public function index(): void {
         $this->requireHr();
-        $list = $this->jobModel->findByCreator(currentUserId());
+        $hrId = currentUserId();
+        $perPage = (int) ($_GET['per_page'] ?? 20);
+        $perPage = in_array($perPage, [10, 20, 50, 100], true) ? $perPage : 20;
+        $filter = $_GET['filter'] ?? 'all';
+        $page = max(1, (int) ($_GET['page'] ?? 1));
+        $totalJobs = $this->jobModel->countByCreatorFiltered($hrId, $filter);
+        $totalPages = $totalJobs > 0 ? (int) ceil($totalJobs / $perPage) : 1;
+        $page = min($page, $totalPages);
+        $list = $this->jobModel->findByCreatorPaginated($hrId, $page, $perPage, $filter);
         foreach ($list as &$j) {
-            $j['applicant_count'] = count($this->appModel->getByJobId((int)$j['id']));
+            $counts = $this->appModel->getCountsByJobId((int) $j['id']);
+            $j['applicant_count'] = $counts['total'];
+            $j['applicant_accepted'] = $counts['accepted'];
+            $j['applicant_rejected'] = $counts['rejected'];
         }
         unset($j);
-        render_view('hr/jobs/index', ['jobs' => $list, 'pageTitle' => 'Dashboard HR']);
+        $stats = $this->appModel->getCountsByHrJobs($hrId);
+        render_view('hr/jobs/index', [
+            'jobs' => $list,
+            'pageTitle' => 'Dashboard HR',
+            'stats' => $stats,
+            'totalJobs' => $totalJobs,
+            'page' => $page,
+            'perPage' => $perPage,
+            'totalPages' => $totalPages,
+            'filter' => $filter,
+        ]);
     }
 
     public function create(): void {

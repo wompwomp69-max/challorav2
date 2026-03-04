@@ -25,6 +25,7 @@ $routes = [
         'hr/jobs/create' => [HrJobController::class, 'create'],
         'hr/jobs/edit' => [HrJobController::class, 'edit'],
         'hr/jobs/applicants' => [HrApplicationController::class, 'index'],
+        'hr/applications/accepted' => [HrApplicationController::class, 'accepted'],
         'download/cv' => [DownloadController::class, 'cv'],
     ],
     'POST' => [

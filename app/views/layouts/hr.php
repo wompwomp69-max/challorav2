@@ -1,15 +1,16 @@
 <?php require APP_PATH . '/views/layouts/header.php'; ?>
-<div class="d-flex">
-    <nav class="navbar navbar-dark bg-dark flex-column align-items-stretch p-3" style="width: 220px; min-height: 100vh;">
+<div class="d-flex" style="height: 100vh; overflow: hidden;">
+    <nav class="navbar navbar-dark bg-dark flex-column align-items-stretch p-3" style="width: 220px; min-height: 100vh; flex-shrink: 0;">
         <a class="navbar-brand mb-4" href="<?= BASE_URL ?>/hr/jobs">HR Recruitment</a>
         <ul class="nav nav-pills flex-column">
-            <li class="nav-item"><a class="nav-link text-white" href="<?= BASE_URL ?>/hr/jobs">Lowongan</a></li>
+            <li class="nav-item"><a class="nav-link text-white" href="<?= BASE_URL ?>/hr/jobs">Dashboard & Lowongan</a></li>
+            <li class="nav-item"><a class="nav-link text-white" href="<?= BASE_URL ?>/hr/applications/accepted">Pelamar Diterima</a></li>
             <li class="nav-item"><a class="nav-link text-white" href="<?= BASE_URL ?>/hr/jobs/create">Buat Lowongan</a></li>
-            <li class="nav-item"><a class="nav-link text-white fw-bold " href="<?= BASE_URL ?>/jobs">← Ke Lowongan (User)</a></li>
-            <li class="nav-item mt-3"><a class="nav-link text-white-50" href="<?= BASE_URL ?>/auth/logout">Logout</a></li>
+            <li class="nav-item mt-4"><a class="btn btn-primary fw-bold " href="<?= BASE_URL ?>/jobs">User Account Mode</a></li>
+            <li class="nav-item mt-4"><a class="btn btn-outline-danger fw-bold" href="<?= BASE_URL ?>/auth/logout">Logout</a></li>
         </ul>
     </nav>
-    <main class="flex-grow-1 p-4">
+    <main class="flex-grow-1 p-4 d-flex flex-column overflow-auto" style="min-height: 0;">
         <?php if (!empty($_SESSION['flash'])): ?>
             <div class="alert alert-success"><?= e($_SESSION['flash']) ?></div>
             <?php unset($_SESSION['flash']); ?>
