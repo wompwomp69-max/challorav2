@@ -19,10 +19,12 @@ class Application {
         return (bool) $stmt->fetch();
     }
 
-    /** Daftar applicant per job (untuk HR) */
+    /** Daftar applicant per job (untuk HR) - termasuk profil lengkap */
     public function getByJobId(int $jobId): array {
         $stmt = $this->db->prepare('
-            SELECT a.*, u.name, u.email, u.phone, u.address
+            SELECT a.*, u.name, u.email, u.phone, u.address,
+                u.father_name, u.mother_name, u.marital_status,
+                u.education_level, u.graduation_year, u.education_major, u.education_university
             FROM applications a
             JOIN users u ON u.id = a.user_id
             WHERE a.job_id = ?

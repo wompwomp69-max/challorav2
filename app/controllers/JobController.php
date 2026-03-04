@@ -12,7 +12,16 @@ class JobController {
     public function index(): void {
         requireLogin();
         $jobs = $this->jobModel->all();
-        render_view('user/jobs/index', ['jobs' => $jobs, 'pageTitle' => 'Lowongan']);
+        $appliedJobIds = [];
+        if (isLoggedIn() && currentRole() === 'user') {
+            $appModel = new Application();
+            foreach ($jobs as $j) {
+                if ($appModel->hasApplied(currentUserId(), (int)$j['id'])) {
+                    $appliedJobIds[] = (int)$j['id'];
+                }
+            }
+        }
+        render_view('user/jobs/index', ['jobs' => $jobs, 'appliedJobIds' => $appliedJobIds, 'pageTitle' => 'Lowongan']);
     }
 
     public function show(): void {

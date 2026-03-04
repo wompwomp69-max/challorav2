@@ -1,3 +1,4 @@
+<?php $maritalLabels = ['single' => 'Belum menikah', 'married' => 'Menikah', 'divorced' => 'Cerai', 'widowed' => 'Duda/Janda']; ?>
 <div class="card mb-3">
     <div class="card-body">
         <h1 class="card-title h4">Pelamar: <?= e($job['title']) ?></h1>
@@ -42,11 +43,38 @@
                                     </form>
                                 </td>
                             </tr>
-                            <?php if (!empty($a['address'])): ?>
-                            <tr>
-                                <td colspan="6" class="text-muted small">Alamat: <?= e($a['address']) ?></td>
+                            <tr class="bg-light">
+                                <td colspan="6" class="p-3">
+                                    <a class="btn btn-sm btn-outline-secondary mb-2" data-bs-toggle="collapse" href="#detail-<?= (int)$a['id'] ?>" role="button">▼ Lihat detail profil pelamar</a>
+                                    <div class="collapse" id="detail-<?= (int)$a['id'] ?>">
+                                        <div class="row small">
+                                            <div class="col-md-6">
+                                                <p class="mb-1"><strong>Alamat:</strong> <?= e($a['address'] ?? '-') ?></p>
+                                                <p class="mb-1"><strong>Nama Ayah:</strong> <?= e($a['father_name'] ?? '-') ?></p>
+                                                <p class="mb-1"><strong>Nama Ibu:</strong> <?= e($a['mother_name'] ?? '-') ?></p>
+                                                <p class="mb-1"><strong>Status Pernikahan:</strong> <?= e(!empty($a['marital_status']) ? ($maritalLabels[$a['marital_status']] ?? $a['marital_status']) : '-') ?></p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p class="mb-1"><strong>Pendidikan:</strong> <?= e($a['education_level'] ?? '-') ?> - <?= e($a['education_major'] ?? '') ?> (<?= e($a['graduation_year'] ?? '') ?>)</p>
+                                                <p class="mb-1"><strong>Universitas:</strong> <?= e($a['education_university'] ?? '-') ?></p>
+                                            </div>
+                                            <?php
+                                            $weList = $workExpByUser[(int)$a['user_id']] ?? [];
+                                            if (!empty($weList)):
+                                            ?>
+                                            <div class="col-12 mt-2">
+                                                <strong>Pengalaman Kerja:</strong>
+                                                <ul class="mb-0">
+                                                    <?php foreach ($weList as $we): ?>
+                                                    <li><?= e($we['title']) ?><?= !empty($we['company_name']) ? ' di ' . e($we['company_name']) : '' ?> (<?= e($we['year_start']) ?> - <?= e($we['year_end']) ?>)<br><span class="text-muted"><?= e($we['description']) ?></span></li>
+                                                    <?php endforeach; ?>
+                                                </ul>
+                                            </div>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </td>
                             </tr>
-                            <?php endif; ?>
                         <?php endforeach; ?>
                     </tbody>
                 </table>

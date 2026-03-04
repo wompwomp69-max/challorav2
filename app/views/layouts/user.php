@@ -1,28 +1,37 @@
 <?php require APP_PATH . '/views/layouts/header.php'; ?>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="<?= BASE_URL ?>"><?= e($siteName ?? 'HR Recruitment') ?></a>
+        <a class="navbar-brand" href="<?= BASE_URL ?>"><?= e($siteName ?? 'Challora Recruitment Platform') ?></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/jobs">Lowongan</a></li>
-                <?php if (isLoggedIn() && currentRole() === 'user'): ?>
-                    <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/applications">Status Lamaran</a></li>
-                    <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/user/settings">Profil Saya</a></li>
-                <?php elseif (isLoggedIn() && currentRole() === 'hr'): ?>
+                <?php if (isLoggedIn() && currentRole() === 'hr'): ?>
                     <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/hr/jobs">Dashboard HR</a></li>
-                <?php else: ?>
-                    <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/auth/register">Daftar</a></li>
+                <?php elseif (isLoggedIn() && currentRole() === 'user'): ?>
+                    <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/jobs">Lowongan</a></li>
                 <?php endif; ?>
             </ul>
             <ul class="navbar-nav">
                 <?php if (isLoggedIn()): ?>
-                    <li class="nav-item"><span class="navbar-text me-3"><?= e($_SESSION['user_name'] ?? 'User') ?></span></li>
+                    <?php if (currentRole() === 'user'): ?>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"><?= e($_SESSION['user_name'] ?? 'User') ?></a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="<?= BASE_URL ?>/applications">Telah dilamar</a></li>
+                            <li><a class="dropdown-item" href="<?= BASE_URL ?>/user/settings">Pengaturan</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="<?= BASE_URL ?>/auth/logout">Log out</a></li>
+                        </ul>
+                    </li>
+                    <?php else: ?>
+                    <li class="nav-item"><a class="nav-link disabled"><?= e($_SESSION['user_name'] ?? 'User') ?></a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/auth/logout">Logout</a></li>
+                    <?php endif; ?>
                 <?php else: ?>
                     <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/auth/login">Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/auth/register">Daftar</a></li>
                 <?php endif; ?>
             </ul>
         </div>

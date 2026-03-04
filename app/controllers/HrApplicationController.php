@@ -5,10 +5,12 @@
 class HrApplicationController {
     private Job $jobModel;
     private Application $appModel;
+    private User $userModel;
 
     public function __construct() {
         $this->jobModel = new Job();
         $this->appModel = new Application();
+        $this->userModel = new User();
     }
 
     private function requireHr(): void {
@@ -24,7 +26,11 @@ class HrApplicationController {
         }
         $job = $this->jobModel->findById($jobId);
         $applicants = $this->appModel->getByJobId($jobId);
-        render_view('hr/applications/index', ['job' => $job, 'applicants' => $applicants, 'pageTitle' => 'Pelamar - ' . e($job['title'])]);
+        $workExpByUser = [];
+        foreach ($applicants as $a) {
+            $workExpByUser[(int)$a['user_id']] = $this->userModel->getWorkExperiences((int)$a['user_id']);
+        }
+        render_view('hr/applications/index', ['job' => $job, 'applicants' => $applicants, 'workExpByUser' => $workExpByUser, 'pageTitle' => 'Pelamar - ' . e($job['title'])]);
     }
 
     public function updateStatus(): void {
