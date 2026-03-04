@@ -9,6 +9,11 @@ define('APP_PATH', BASE_PATH . '/app');
 define('BASE_URL', '/challorav2/public');
 define('STORAGE_CV', BASE_PATH . '/storage/cv');
 
+$autoloadPath = BASE_PATH . '/vendor/autoload.php';
+if (file_exists($autoloadPath)) {
+    require $autoloadPath;
+}
+
 spl_autoload_register(function ($class) {
     $paths = [
         BASE_PATH . '/core/',

@@ -1,4 +1,4 @@
-<div class="card mx-auto" style="max-width: 600px;">
+<div class="card mx-auto" style="max-width: 1200px; min-width: 60%">
     <div class="card-body">
         <h1 class="card-title h4 mb-4">Edit Lowongan</h1>
         <form method="post" action="<?= BASE_URL ?>/index.php?url=hr/jobs/edit&id=<?= (int)($job['id'] ?? 0) ?>">

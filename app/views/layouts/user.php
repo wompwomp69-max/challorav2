@@ -27,6 +27,7 @@
                     </li>
                     <?php else: ?>
                     <li class="nav-item"><a class="nav-link disabled"><?= e($_SESSION['user_name'] ?? 'User') ?></a></li>
+                    <div class="dropdown-divider"></div>
                     <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/auth/logout">Logout</a></li>
                     <?php endif; ?>
                 <?php else: ?>

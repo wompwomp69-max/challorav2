@@ -33,7 +33,11 @@ class HrApplicationController {
             $workExpByUser[$uid] = $this->userModel->getWorkExperiences($uid);
             $achievementsByUser[$uid] = $this->userModel->getAchievements($uid);
         }
-        render_view('hr/applications/index', ['job' => $job, 'applicants' => $applicants, 'workExpByUser' => $workExpByUser, 'achievementsByUser' => $achievementsByUser, 'pageTitle' => 'Pelamar - ' . e($job['title'])]);
+        $openMailto = $_SESSION['open_mailto'] ?? null;
+        if ($openMailto) {
+            unset($_SESSION['open_mailto']);
+        }
+        render_view('hr/applications/index', ['job' => $job, 'applicants' => $applicants, 'workExpByUser' => $workExpByUser, 'achievementsByUser' => $achievementsByUser, 'pageTitle' => 'Pelamar - ' . e($job['title']), 'openMailto' => $openMailto]);
     }
 
     public function updateStatus(): void {
@@ -43,6 +47,7 @@ class HrApplicationController {
         }
         $appId = (int) ($_POST['application_id'] ?? 0);
         $status = trim($_POST['status'] ?? '');
+        $openMailto = !empty($_POST['open_mailto']);
         $app = $this->appModel->getApplicationForHrJob($appId, currentUserId());
         if (!$app) {
             $_SESSION['flash_error'] = 'Data lamaran tidak ditemukan.';
@@ -50,6 +55,23 @@ class HrApplicationController {
         }
         if ($this->appModel->updateStatus($appId, $status)) {
             $_SESSION['flash'] = 'Status lamaran diperbarui.';
+            if ($openMailto && in_array($status, ['accepted', 'rejected'], true)) {
+                $user = $this->userModel->findById((int) $app['user_id']);
+                $job = $this->jobModel->findById((int) $app['job_id']);
+                $name = $user['name'] ?? 'Pelamar';
+                $email = $user['email'] ?? '';
+                $jobTitle = $job['title'] ?? 'lowongan';
+                $mail = new MailService();
+                if ($mail->isEnabled() && $email && $mail->sendApplicationResult($email, $name, $jobTitle, $status)) {
+                    $_SESSION['flash'] = 'Status lamaran diperbarui. Email otomatis telah dikirim ke pelamar.';
+                } else {
+                    $subject = rawurlencode('Hasil Lamaran: ' . $jobTitle . ' - ' . ($status === 'accepted' ? 'Diterima' : 'Tidak Diterima'));
+                    $body = $status === 'accepted'
+                        ? rawurlencode("Yth. {$name},\n\nSelamat! Anda dinyatakan LULUS seleksi untuk posisi {$jobTitle}.\n\nSilakan hubungi kami untuk langkah selanjutnya.\n\nTerima kasih.")
+                        : rawurlencode("Yth. {$name},\n\nTerima kasih telah melamar untuk posisi {$jobTitle}.\n\nMohon maaf, setelah proses seleksi Anda belum dapat kami terima untuk posisi ini.\n\nTetap semangat dan terima kasih.");
+                    $_SESSION['open_mailto'] = "mailto:{$email}?subject={$subject}&body={$body}";
+                }
+            }
         }
         redirect('/hr/jobs/applicants?id=' . $app['job_id']);
     }

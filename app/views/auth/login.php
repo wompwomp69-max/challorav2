@@ -1,4 +1,4 @@
-<div class="card mx-auto" style="max-width: 400px;">
+<div class="card mx-auto my-auto" style="max-width: 400px;">
     <div class="card-body">
         <h1 class="card-title h4 mb-4">Login</h1>
         <form method="post" action="<?= BASE_URL ?>/index.php?url=auth/login">
