@@ -5,7 +5,7 @@
 $baseDir = dirname(__DIR__);
 require $baseDir . '/config/app.php';
 
-$url = trim($_GET['url'] ?? 'jobs', '/');
+$url = trim($_GET['url'] ?? 'auth/login', '/');
 $url = $url === '' ? 'jobs' : $url;
 $parts = array_filter(explode('/', $url));
 $key = implode('/', $parts);
